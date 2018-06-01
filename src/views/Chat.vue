@@ -2,12 +2,13 @@
   <div>
     <div>You're chätting with <strong>{{ $route.params.partnername }}</strong></div>
 
+    <a v-on:click="$router.go(-1)" href="#">🔙 go bäck</a>
     <pre>
       TODO: messages
     </pre>
 
     <form v-on:submit.prevent="handleMessageSend()">
-      <input type="text" v-model="message">
+      <input type="text" placeholder="Type message..." v-model="message">
       <button submit>Send</button>
     </form>
   </div>

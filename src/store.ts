@@ -4,11 +4,15 @@ import Vuex from 'vuex';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-  state: {
+  strict: true,
 
+  state: {
+    username: ''
   },
   mutations: {
-
+    SET_USERNAME: (state, username) => {
+      state.username = username;
+    },
   },
   actions: {
 
