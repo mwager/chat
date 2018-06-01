@@ -1,18 +1,29 @@
 <template>
   <div class="home">
-    <img src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App"/>
+    <Login v-if="!username"/>
+    <Start v-if="username"/>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator';
-import HelloWorld from '@/components/HelloWorld.vue'; // @ is an alias to /src
+import { State, Action, Getter } from 'vuex-class';
+import Login from '@/components/Login.vue'; // @ is an alias to /src
+import Start from '@/components/Start.vue';
 
 @Component({
   components: {
-    HelloWorld,
+    Login,
+    Start,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  public mounted() {
+    console.log('Home view mounted. Store: ', this.$store);
+  }
+
+  get username() {
+    return this.$store.state.username;
+  }
+}
 </script>
