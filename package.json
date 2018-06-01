@@ -2,8 +2,11 @@
   "name": "my-project",
   "version": "0.1.0",
   "private": true,
+  "description": "Side project: simple chat app with encryption support",
+  "author": "Michael Wager (mail@mwager.de)",
+  "license": "MIT",
   "scripts": {
-    "serve": "vue-cli-service serve",
+    "start": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "test:unit": "vue-cli-service test:unit",
@@ -14,7 +17,8 @@
     "vue-class-component": "^6.0.0",
     "vue-property-decorator": "^6.0.0",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vuex-class": "^0.3.1"
   },
   "devDependencies": {
     "@types/jest": "^22.0.1",
