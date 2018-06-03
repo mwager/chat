@@ -3,9 +3,15 @@
     <div>You're chätting with <strong>{{ $route.params.partnername }}</strong></div>
 
     <a v-on:click="$router.go(-1)" href="#">🔙 go bäck</a>
-    <pre>
-      TODO: messages
-    </pre>
+
+    <ul>
+      <li v-for="message in messages">
+        {{message.id}} |
+        {{message.timestamp}}
+        <br>
+        <pre>{{message.message}}</pre>
+      </li>
+    </ul>
 
     <form v-on:submit.prevent="handleMessageSend()">
       <input type="text" placeholder="Type message..." v-model="message">
@@ -22,11 +28,15 @@ export default class Login extends Vue {
   private message: string = '';
 
   public handleMessageSend() {
-    // this.$store.commit('SEND_MESSAGE', {
-    //   partnername: this.$route.params.partnername,
-    //   message: this.message
-    // });
+    this.$store.dispatch('sendMessage', {
+      partnername: this.$route.params.partnername,
+      message: this.message
+    });
     this.message = '';
+  }
+
+  get messages() {
+    return this.$store.state.messages[this.$route.params.partnername];
   }
 }
 </script>

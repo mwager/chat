@@ -1,25 +1,21 @@
 <template>
   <div>
-    <h3>Choose a username to start chätting!</h3>
+    <h3>Signin to chät!</h3>
 
     <form v-on:submit.prevent="handleSubmit()">
-      <input type="text" v-model="username">
-      <br>
-      <button submit>Start</button>
+      <button submit>Signin</button>
     </form>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import firebase from 'firebase';
 
 @Component
 export default class Login extends Vue {
-  // @Prop() private msg!: string;
-  public username = '';
-
   private handleSubmit() {
-    this.$store.commit('SET_USERNAME', this.username);
+    this.$store.dispatch('login');
   }
 }
 </script>
