@@ -7,21 +7,21 @@ import firebase from 'firebase';
 
 Vue.config.productionTip = false;
 
-const app = new Vue({
-  router,
-  store,
-  render: (h) => h(App)
-});
-
-app.$mount('#app');
+let app: any;
 
 firebase.auth().onAuthStateChanged((user: any) => {
-  if (user) {
+  if (!app) {
+    app = new Vue({
+      router,
+      store,
+      render: (h) => h(App)
+    });
+
+    app.$mount('#app');
+
     console.log('>>> onAuthStateChanged - SIGNED IN:', user);
 
-    store.commit('SET_USER', user);
-    store.dispatch('fetchInitialState');
-  } else {
-    store.dispatch('logout');
+    // store.commit('SET_USER', user);
+    // store.dispatch('fetchInitialState');
   }
 });

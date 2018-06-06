@@ -65,7 +65,11 @@ const store = new Vuex.Store({
   },
 
   mutations: {
-    SET_USER: (state, user) => {
+    SET_USER: (state, user = {}) => {
+      if (!user) {
+        return delete state.user;
+      }
+
       state.user = {
         uid: user.uid,
         name: user.displayName,
@@ -124,64 +128,49 @@ const store = new Vuex.Store({
       });
     },
 
-    login: ({ commit, state }, payload) => {
-      // console.log('action "login"', payload);
-      const provider = new firebase.auth.FacebookAuthProvider();
+    login: ({ commit, state }, resultFromProvider) => {
 
-      firebase.auth().signInWithPopup(provider)
-      .then((result) => {
-        // This gives you a Facebook Access Token. You can use it to access the Facebook API.
-        const token = result.credential.accessToken;
+      // This gives you a Facebook Access Token. You can use it to access the Facebook API.
+      const token = resultFromProvider.credential.accessToken;
 
-        // The signed-in user info.
-        const user = result.user;
-        console.log(`User is: ${token}`, user);
+      // The signed-in user info.
+      const user = resultFromProvider.user;
+      console.log(`User is: ${token}`, user);
 
-        return fetchUsers()
-        .then((users): Promise<any> => {
-          // add to our databse only if not already exists
-          for (const userTmp of users) {
-            if (userTmp.email === user.email) {
-              console.log(`User ${user.email} already exists!`);
-              return Promise.resolve();
-            }
+      return fetchUsers()
+      .then((users): Promise<any> => {
+        // add to our databse only if not already exists
+        for (const userTmp of users) {
+          if (userTmp.email === user.email) {
+            console.log(`User ${user.email} already exists!`);
+            return Promise.resolve();
           }
+        }
 
-          return database.collection('users').add({
-            name: user.displayName || user.email,
-            email: user.email,
-            uid: user.uid
-          });
+        return database.collection('users').add({
+          name: user.displayName || user.email,
+          email: user.email,
+          uid: user.uid
         });
-      })
-      .catch((error: any) => {
-          // Handle Errors here.
-          console.error(error);
       });
     },
 
     logout: ({ commit, state }, payload) => {
-      firebase.auth().signOut()
-      .then(() => {
-        if (typeof unsubscribeUsers === 'function') {
-          unsubscribeUsers();
-        }
-        if (typeof unsubscribeChats === 'function') {
-          unsubscribeChats();
-        }
+      // TODO
+      if (typeof unsubscribeUsers === 'function') {
+        unsubscribeUsers();
+      }
+      if (typeof unsubscribeChats === 'function') {
+        unsubscribeChats();
+      }
+      commit('SET_USER', null);
 
-
-        commit('SET_USER', null);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
     },
 
     sendMessage: ({ commit, state }, payload) => {
       console.log('sendMessage', payload)
 
-      // TODO db model
+      // TODO db model!!!
     }
   }
 });

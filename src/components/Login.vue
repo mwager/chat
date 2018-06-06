@@ -2,9 +2,9 @@
   <div>
     <h3>Signin to chät!</h3>
 
-    <form v-on:submit.prevent="handleSubmit()">
-      <button submit>Signin</button>
-    </form>
+    <button v-on:click="handleFacebook()">Signin using facebook</button>
+    <br>
+    <button v-on:click="handleGithub()">Signin using github</button>
   </div>
 </template>
 
@@ -14,8 +14,31 @@ import firebase from 'firebase';
 
 @Component
 export default class Login extends Vue {
-  private handleSubmit() {
-    this.$store.dispatch('login');
+
+  private handleFacebook() {
+    const provider = new firebase.auth.FacebookAuthProvider();
+
+    firebase.auth().signInWithPopup(provider)
+    .then((result) => {
+      this.$store.dispatch('login', result);
+      this.$router.replace('home');
+    })
+    .catch((error: any) => {
+      console.error('LOGIN ERROR', error);
+    });
+  }
+
+  private handleGithub() {
+    const provider = new firebase.auth.GithubAuthProvider();
+
+    firebase.auth().signInWithPopup(provider)
+    .then((result) => {
+      this.$store.dispatch('login', result);
+      this.$router.replace('home');
+    })
+    .catch((error: any) => {
+      console.error('LOGIN ERROR', error);
+    });
   }
 }
 </script>
