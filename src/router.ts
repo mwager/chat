@@ -13,7 +13,7 @@ export default new Router({
       component: Home,
     },
     {
-      path: '/chat/:partnername',
+      path: '/chat/:uid',
       name: 'chat',
       component: Chat,
     },

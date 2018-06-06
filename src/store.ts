@@ -13,6 +13,26 @@ function uuidv4() {
   });
 }
 
+interface User {
+  uid: string;
+  name: string;
+  email: string;
+}
+interface Message {
+  id: string;
+  timestamp: string;
+  message: string;
+}
+interface Chats {
+  id: string;
+  userid1: string;
+  userid2: string;
+  messages: string[]
+}
+
+let unsubscribeUsers: any;
+let unsubscribeChats: any;
+
 function fetchUsers() {
   return database.collection('users')
   .get()
@@ -28,68 +48,78 @@ function fetchUsers() {
   });
 }
 
-interface Users {
-  name: string;
-  email: string;
-}
-interface Message {
-  id: string;
-  timestamp: string;
-  message: string;
-}
-interface Chats {
-  id: string;
-  messages: Message[];
-}
 
 const store = new Vuex.Store({
   strict: true,
 
   state: {
-    username: '',
-    users: [] as Users[],
+    user: {} as User,
+    users: [] as User[],
     chats: [] as Chats[],
   },
+
   getters: {
-    username: (state) => state.username,
+    user: (state) => state.user,
     users: (state) => state.users,
     chats: (state) => state.chats
   },
 
   mutations: {
-    SET_USERNAME: (state, username) => {
-      state.username = username;
+    SET_USER: (state, user) => {
+      state.user = {
+        uid: user.uid,
+        name: user.displayName,
+        email: user.email
+      };
     },
 
     INIT_STATE_FROM_DB: (state, payload) => {
       state.users = payload.users;
+
+      console.log('INIT_STATE_FROM_DB', state, payload);
+    },
+
+    SET_CHATS: (state, payload) => {
       state.chats = payload.chats;
 
-      console.log("INIT_STATE_FROM_DB", state, payload)
+      console.log('SET_CHATS', state, payload);
     },
   },
   actions: {
     fetchInitialState: ({ commit, state }, payload) => {
-      const p1 = fetchUsers();
+      // listen to changes for users
+      unsubscribeUsers = database.collection('users')
+      .onSnapshot((querySnapshot) => {
+        const users: any = [];
 
-      const p2 = database.collection('chats')
-      .get()
-      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const user = doc.data();
+          users.push(user);
+        });
+
+        console.log('GOT SNAPSHOT for users', users, '\n', querySnapshot);
+
+        commit('INIT_STATE_FROM_DB', {
+          users
+        });
+      });
+
+      unsubscribeChats = database.collection('chats')
+      .onSnapshot((querySnapshot) => {
         const chats: any = [];
 
         querySnapshot.forEach((doc) => {
+          // TODO:
+          // doc.metadata.hasPendingWrites bei messages!
+          // "Local writes in your app will invoke snapshot listeners immediately"
           const chat = doc.data();
           chats.push(chat);
         });
 
-        return chats;
-      });
+        console.log('GOT SNAPSHOT for chats', chats, '\n', querySnapshot);
 
-      Promise.all([p1, p2])
-      .then((data) => {
-        commit('INIT_STATE_FROM_DB', {
-          users: data[0],
-          chats: data[1]
+        commit('SET_CHATS', {
+          chats
         });
       });
     },
@@ -109,16 +139,18 @@ const store = new Vuex.Store({
 
         return fetchUsers()
         .then((users): Promise<any> => {
-          // add to our databse if not already exists
+          // add to our databse only if not already exists
           for (const userTmp of users) {
             if (userTmp.email === user.email) {
+              console.log(`User ${user.email} already exists!`);
               return Promise.resolve();
             }
           }
 
           return database.collection('users').add({
             name: user.displayName || user.email,
-            email: user.email
+            email: user.email,
+            uid: user.uid
           });
         });
       })
@@ -131,24 +163,26 @@ const store = new Vuex.Store({
     logout: ({ commit, state }, payload) => {
       firebase.auth().signOut()
       .then(() => {
-        commit('SET_USERNAME', null);
+        if (typeof unsubscribeUsers === 'function') {
+          unsubscribeUsers();
+        }
+        if (typeof unsubscribeChats === 'function') {
+          unsubscribeChats();
+        }
+
+
+        commit('SET_USER', null);
       })
       .catch((error) => {
         console.error(error);
       });
     },
 
-    // sendMessage: ({ commit, state }, payload) => {
-    //   if (!state.messages[payload.partnername]) {
-    //     state.messages[payload.partnername] = [];
-    //   }
+    sendMessage: ({ commit, state }, payload) => {
+      console.log('sendMessage', payload)
 
-    //   state.messages[payload.partnername].push({
-    //     id: uuidv4(),
-    //     timestamp: new Date().getTime(),
-    //     message: payload.message
-    //   });
-    // }
+      // TODO db model
+    }
   }
 });
 

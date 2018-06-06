@@ -9,7 +9,7 @@
 
     <ul class="users">
       <li v-for="user in users" v-if="user.name !== username">
-        <router-link :to="{ name: 'chat', params: { partnername: user.name }}">
+        <router-link :to="{ name: 'chat', params: { uid: user.uid }}">
           {{ user.name }}
         </router-link>
       </li>
@@ -24,7 +24,7 @@ import db from '@/firebase_config';
 @Component
 export default class Start extends Vue {
   get username() {
-    return this.$store.getters.username;
+    return this.$store.getters.user.name;
   }
 
   get users() {

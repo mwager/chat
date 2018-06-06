@@ -23,7 +23,7 @@ export default class Home extends Vue {
   }
 
   get username() {
-    return this.$store.state.username;
+    return this.$store.getters.user.name;
   }
 }
 </script>

@@ -17,19 +17,11 @@ app.$mount('#app');
 
 firebase.auth().onAuthStateChanged((user: any) => {
   if (user) {
-    console.log('LOGGED IN!', user);
+    console.log('>>> onAuthStateChanged - SIGNED IN:', user);
 
-    const name = user.displayName || user.email;
-
-    store.commit('SET_USERNAME', name);
+    store.commit('SET_USER', user);
     store.dispatch('fetchInitialState');
   } else {
-    // store.dispatch(logout());
-    // store.dispatch(clearState);
-    // renderApp();
-    // history.push('/');
-
-    console.log('user logged out');
-    // TODO commit('LOGOUT?', name);
+    store.dispatch('logout');
   }
 });

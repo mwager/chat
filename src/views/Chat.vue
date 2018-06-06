@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>You're chätting with <strong>{{ $route.params.partnername }}</strong></div>
+    <div>You're chätting with <strong>{{ partnername }}</strong></div>
 
     <a v-on:click="$router.go(-1)" href="#">🔙 go bäck</a>
 
@@ -29,14 +29,35 @@ export default class Login extends Vue {
 
   public handleMessageSend() {
     this.$store.dispatch('sendMessage', {
-      partnername: this.$route.params.partnername,
+      userid1: this.$store.getters.user.uid,
+      userid2: this.$route.params.uid,
       message: this.message
     });
+
     this.message = '';
   }
 
   get messages() {
-    return this.$store.state.messages[this.$route.params.partnername];
+    for (const chat of this.$store.getters.chats) {
+      if ((chat.userid1 === this.$store.getters.user.uid || chat.userid2 === this.$store.getters.user.uid) &&
+      (chat.userid1 === this.$route.params.uid || chat.userid2 === this.$route.params.uid)) {
+        return chat.messages;
+      }
+    }
+  }
+
+  get partnername() {
+    let partnerName!: string;
+
+    // TODO: where should such logic stay?
+    for (const user of this.$store.getters.users) {
+       if (user.uid === this.$route.params.uid) {
+          partnerName = user.name || user.email;
+          break;
+       }
+    }
+
+    return partnerName;
   }
 }
 </script>
